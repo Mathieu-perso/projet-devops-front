@@ -1,0 +1,38 @@
+name: Qualif
+
+on:
+  push:
+    branches:
+      - qualif
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - qualif
+
+jobs:
+  build_and_deploy_job:
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+          
+      - name: Build project
+        run: npm run build
+
+      - name: Deploy to Azure Static Web App
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATICWEBAPP_QUALIF }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: upload
+          app_location: "/"
+          output_location: "dist"
